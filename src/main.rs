@@ -10,14 +10,16 @@ fn main() {
     let font = Font::try_from_bytes(font_data as &[u8]).expect("Error constructing Font");
 
     // The font size to use
-    let scale = Scale::uniform(32.0);
+    let scale = Scale::uniform(28.0);
 
     // The text to render
     let text = include_str!("main.rs");
 
     let v_metrics = font.v_metrics(scale);
+    println!("v_metrics {v_metrics:?}");
 
-    let mut data = vec![0u8; 800 * 800 * 3];
+    let mut data = vec![0u8; 800 * 32 * 3];
+    let mut line_count = 1;
     let mut cursor = point(0.0, v_metrics.ascent);
     let mut last_glyph = None;
     for c in text.chars() {
@@ -34,29 +36,36 @@ fn main() {
             if c == '\n' || bounding_box.max.x + cursor.x.ceil() as i32 >= 800 {
                 cursor.x = 0.0;
                 cursor.y += 32.0;
+                line_count += 1;
+                data.extend(repeat_n(0, 800 * 32 * 3))
             }
             if c == '\n' {
                 continue;
             }
             // Draw the glyph into the image per-pixel by using the draw closure
             glyph.draw(|x, y, v| {
-                let x = x as i32 + bounding_box.min.x;
+                let x = x as i32 + bounding_box.min.x + 1;
                 let y = y as i32 + bounding_box.min.y;
-                if x >= 0 && y >= 0 && x < 800 && y < 800 {
+                if x >= 0 && y >= 0 && x < 800 && y < line_count * 32 {
                     let x = x as usize;
                     let y = y as usize;
                     data[(y * 800 + x) * 3] = (v * 255.0) as u8;
                     data[(y * 800 + x) * 3 + 1] = (v * 255.0) as u8;
                     data[(y * 800 + x) * 3 + 2] = (v * 255.0) as u8;
                 } else {
-                    println!("Out of bounds: ({}, {})", x, y);
+                    println!(
+                        "Out of bounds: ({}, {}) limit (0, {})",
+                        x,
+                        y,
+                        line_count * 32
+                    );
                 }
             });
         }
         last_glyph = Some(id);
     }
 
-    put_image(800, 800, &data);
+    put_image(800, line_count as u32 * 32, &data);
 }
 
 fn put_image(width: u32, height: u32, data: &[u8]) {

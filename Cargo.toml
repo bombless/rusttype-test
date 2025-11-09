@@ -4,5 +4,23 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+dirs = "5.0"
 image = "0.25.8"
 rusttype = "0.9.3"
+xdg = "2.5"
+
+[[bin]]
+name = "search"
+path = "src/search.rs"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[[bin]]
+name = "make"
+path = "src/make.rs"
+
+[lib]
+path = "src/lib.rs"
+name = "lib"

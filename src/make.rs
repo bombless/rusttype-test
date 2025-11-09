@@ -41,6 +41,8 @@ fn main() {
     }
     let target = &args[1];
     let factor_finder = FactorFinder::new();
+
+    let mut source_code = String::new();
     for c in target.chars() {
         println!("target {c}");
         let text = format!("{c}");
@@ -48,18 +50,35 @@ fn main() {
         let count = 32.0 * 32.0;
         let mut avg = 0.0;
 
+        let mut matrix = [0; 32];
         for j in 0..32 {
+            let mut line = 0u32;
             for i in 0..32 {
                 let idx = j * 32 + i;
                 let factor = data[idx * 3] as f32 / 256.0;
+                if factor > 0.5 {
+                    line |= 1 << i;
+                }
                 avg += data[idx * 3] as f32 / 256.0 / count;
                 let c = factor_finder.for_factor(factor);
                 print!("{c}{c}");
             }
+            matrix[j] = line;
             println!();
         }
+
+        source_code.push_str(&format!("    0x{:08X} => {:?},\n", c as u32, matrix));
 
         println!("factor {avg:.3}");
         lib::put_image(&text, 32, data.len() as u32 / 32 / 3, &data);
     }
+
+    let source_code = format!("  match c {{\n{source_code}\n    _ => [0; 32],\n  }}");
+
+    for i in 0..80 {
+        print!("{}", if i == 0 { "#" } else { "=" });
+    }
+    println!();
+
+    println!("pub fn bitmap(c: u32) -> [u32; 32] {{\n{source_code}\n}}");
 }

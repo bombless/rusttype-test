@@ -50,20 +50,37 @@ fn main() {
         let count = 32.0 * 32.0;
         let mut avg = 0.0;
 
-        let mut matrix = [0; 32];
+        let mut matrix = [[0; 32]; 3];
         for j in 0..32 {
-            let mut line = 0u32;
+            let mut line_gb0 = 0u32;
+            let mut line_gb1 = 0u32;
+            let mut line_gb2 = 0u32;
             for i in 0..32 {
                 let idx = j * 32 + i;
                 let factor = data[idx * 3] as f32 / 256.0;
-                if factor > 0.5 {
-                    line |= 1 << i;
-                }
+                let gray_level = data[idx * 3];
+                line_gb0 |= if gray_level & (1 << 7) != 0 {
+                    1 << i
+                } else {
+                    0
+                };
+                line_gb1 |= if gray_level & (1 << 6) != 0 {
+                    1 << i
+                } else {
+                    0
+                };
+                line_gb2 |= if gray_level & (1 << 5) != 0 {
+                    1 << i
+                } else {
+                    0
+                };
                 avg += data[idx * 3] as f32 / 256.0 / count;
                 let c = factor_finder.for_factor(factor);
                 print!("{c}{c}");
             }
-            matrix[j] = line;
+            matrix[0][j] = line_gb0;
+            matrix[1][j] = line_gb1;
+            matrix[2][j] = line_gb2;
             println!();
         }
 
@@ -73,12 +90,12 @@ fn main() {
         lib::put_image(&text, 32, data.len() as u32 / 32 / 3, &data);
     }
 
-    let source_code = format!("  match c {{\n{source_code}\n    _ => [0; 32],\n  }}");
+    let source_code = format!("  match c {{\n{source_code}\n    _ => [[0; 32]; 3],\n  }}");
 
     for i in 0..80 {
         print!("{}", if i == 0 { "#" } else { "=" });
     }
     println!();
 
-    println!("pub fn bitmap(c: u32) -> [u32; 32] {{\n{source_code}\n}}");
+    println!("pub fn bitmap(c: u32) -> [[u32; 32]; 3] {{\n{source_code}\n}}");
 }

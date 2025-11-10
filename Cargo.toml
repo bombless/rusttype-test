@@ -21,6 +21,10 @@ path = "src/main.rs"
 name = "make"
 path = "src/make.rs"
 
+[[bin]]
+name = "test"
+path = "src/test.rs"
+
 [lib]
 path = "src/lib.rs"
 name = "lib"

@@ -29,6 +29,10 @@ path = "src/test.rs"
 name = "gray8"
 path = "src/gray8.rs"
 
+[[bin]]
+name = "levels"
+path = "src/levels.rs"
+
 [lib]
 path = "src/lib.rs"
 name = "lib"

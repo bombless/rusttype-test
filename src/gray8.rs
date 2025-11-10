@@ -25,9 +25,16 @@ fn make(c: char) -> [[char; 64]; 32] {
             if x >= 0 && y >= 0 && x < 64 && y < 32 {
                 let x = x as usize;
                 let y = y as usize;
-                let offset = (v * 3.99).floor() as usize;
-                let candidates = [' ', '+', '$', '@'];
-                data[y][x] = candidates[offset];
+                let print = if v >= 0.5 {
+                    '@'
+                } else if v >= 0.25 {
+                    '$'
+                } else if v >= 0.125 {
+                    '+'
+                } else {
+                    ' '
+                };
+                data[y][x] = print;
             } else {
                 println!("Out of bounds: ({}, {}) limit (64, 32)", x, y,);
             }

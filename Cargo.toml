@@ -25,6 +25,10 @@ path = "src/make.rs"
 name = "test"
 path = "src/test.rs"
 
+[[bin]]
+name = "gray8"
+path = "src/gray8.rs"
+
 [lib]
 path = "src/lib.rs"
 name = "lib"

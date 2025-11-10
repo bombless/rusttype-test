@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 const FACTORS: [(char, f32); 10] = [
     ('@', 0.125),
     ('#', 0.087),
@@ -43,7 +45,12 @@ fn main() {
     let factor_finder = FactorFinder::new();
 
     let mut source_code = String::new();
+    let mut history = HashSet::new();
     for c in target.chars() {
+        if history.contains(&c) {
+            continue;
+        }
+        history.insert(c);
         println!("target {c}");
         let text = format!("{c}");
         let data = lib::make(32, &text);
